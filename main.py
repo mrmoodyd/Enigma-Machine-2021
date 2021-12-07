@@ -10,6 +10,9 @@ gear3 = ['"', 'R', '=', ')', '|', ':', 'X', 'M', ']', 'D', '7', '.', '}', '3', '
 reflector = [['!', 'q'], ['m', 'Q'], ['Z', '^'], ['d', 'I'], ['D', 'f'], [')', '%'], ['F', 'g'], ['P', '{'], ['J', '+'], ['L', '>'], ['2', 'K'], ['6', '@'], ['[', 't'], ['H', 'l'], ['U', '<'], ['G', 'o'], ['8', 'R'], ['=', 'X'], ['M', 'h'], ['7', '5'], ['p', '*'], ['u', 'W'], ['Y', '/'], [',', '-'], ['_', ';'], ['c', '~'], ['C', '"'], ['E', 'e'], ['1', 'O'], ["'", ' '], ['y', 'V'], [':', '3'], ['A', '?'], ['a', '&'], ['r', 'i'], ['|', '#'], ['.', 'B'], ['b', '$'], ["'", 'z'], ['x', 'S'], ['4', 'w'], ['j', '}'], ['0', '9'], ['(', 'v'], ['k', 'n'], [']', 's'], ['N', 'T']]
 
 def getInputs():
+    """
+    Recieves inputs for the message to encrypt, and the positions of the three gears.
+    """
     inputMessage = str(input('Enter message to be encrypted:  '))
     gear1pos = int(input('Enter position of gear 1:  '))
     gear2pos = int(input('Enter position of gear 2:  '))
@@ -18,47 +21,62 @@ def getInputs():
     return inputMessage, gear1pos, gear2pos, gear3pos
 
 def gearOutput(gearSide1, gearSide2, inputChar):
+    """
+    Calculates the output of passing a given input into a gear.
+    """
     return gearSide1[gearSide2.index(inputChar)]
 
-def turnGear(gear, turns):
-    a = turns % len(gear)
+def turnGear(gear, n=1):
+    """
+    Turns the specified gear n times.  Returns the turned gear.
+    """
+    a = n % len(gear)
     return gear[-a:] + gear[:-a]
 
-inputMessage, gear1pos, gear2pos, gear3pos = getInputs()
-outputMessage = ''
-gear1 = turnGear(gear1,gear1pos)
-gear2 = turnGear(gear2,gear2pos)
-gear3 = turnGear(gear3,gear3pos)
+def encrypt(inputMessage, inputGear, gear1, gear2, gear3, reflector):
+    """
+    Encrypts the input message and returns the encrypted message.
+    """
+    outputMessage = ''
+    count1 = 0
+    count2 = 0
 
-count1 = 0
-count2 = 0
+    for char in inputMessage:
+        char = gearOutput(gear1, inputGear, char)
+        char = gearOutput(gear2, inputGear, char)
+        char = gearOutput(gear3, inputGear, char)
+        for pair in reflector:
+            if pair[0] == char:
+                char = pair[1]
+            elif pair[1] == char:
+                char = pair[0]
+        char = gearOutput(inputGear, gear3, char)
+        char = gearOutput(inputGear, gear2, char)
+        char = gearOutput(inputGear, gear1, char)
 
-for char in inputMessage:
-    char = gearOutput(gear1, inputGear, char)
-    char = gearOutput(gear2, inputGear, char)
-    char = gearOutput(gear3, inputGear, char)
-    for pair in reflector:
-        if pair[0] == char:
-            char = pair[1]
-        elif pair[1] == char:
-            char = pair[0]
-    char = gearOutput(inputGear, gear3, char)
-    char = gearOutput(inputGear, gear2, char)
-    char = gearOutput(inputGear, gear1, char)
+        gear1 = turnGear(gear1)
+        count1 += 1
 
-    gear1 = turnGear(gear1, 1)
-    count1 += 1
+        if count1 == len(gear1):
+            count1 = 0
 
-    if count1 == len(gear1):
-        count1 = 0
+            gear2 = turnGear(gear2)
+            count2 += 1
+        if count2 == len(gear2):
+            count2 = 0
 
-        gear2 = turnGear(gear2, 1)
-        count2 += 1
-    if count2 == len(gear2):
-        count2 = 0
+            gear3 = turnGear(gear3)
 
-        gear3 = turnGear(gear3, 1)
+        outputMessage += char
+    
+    return outputMessage
 
-    outputMessage += char
+if __name__ == '__main__':
+    inputMessage, gear1pos, gear2pos, gear3pos = getInputs()
 
-print('Encrypted message:  '+outputMessage)
+    gear1 = turnGear(gear1,gear1pos)
+    gear2 = turnGear(gear2,gear2pos)
+    gear3 = turnGear(gear3,gear3pos)
+
+    outputMessage = encrypt(inputMessage, inputGear, gear1, gear2, gear3, reflector)
+    print('Encrypted message:  '+outputMessage)
