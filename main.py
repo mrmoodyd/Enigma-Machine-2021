@@ -1,6 +1,11 @@
 #Engima Machine 2021
 #David Moody
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+import sys
+
 inputGear = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', ']', '^', '_', "'", '{', '|', '}', '~', ' ']
 
 gear1 = ['%', 'h', ';', '0', ':', '#', '^', '3', ',', 'g', 'e', 'r', 'S', 'q', 'p', 'C', 'i', 'd', 'o', '2', '+', '8', 's', 'U', 'l', 'F', 'z', 'M', '"', 'f', 'j', ' ', '5', 'K', 'b', 'k', 'H', '=', 'J', '/', 'N', 'L', 'B', 'W', '@', '_', 'n', 'w', 'Y', 'X', '~', '9', 'c', 'P', 't', '}', '<', 'E', 'm', 'I', ')', 'Q', 'v', '6', "'", 'D', '$', 'O', 'R', '*', '.', '!', 'T', '[', '{', '1', "'", '>', 'u', '-', ']', '?', 'x', '|', '7', 'V', 'Z', 'y', '(', 'a', '4', 'A', '&', 'G']
@@ -71,12 +76,110 @@ def encrypt(inputMessage, inputGear, gear1, gear2, gear3, reflector):
     
     return outputMessage
 
+class GUI(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        self.resize(900,700)
+        self.center()
+
+        self.setWindowTitle('Virtual Enigma Machine')
+
+        outerLayout = QVBoxLayout()
+
+        topLayout = QFormLayout()
+        topLayout.addRow('Input Message', QLineEdit())        
+
+        gearHeadings = QHBoxLayout()
+        label1 = QLabel('Gear 1')
+        label1.setFont(QFont('Ariel', 14))
+        label1.setAlignment(Qt.AlignCenter)
+
+        label2 = QLabel('Gear 2')
+        label2.setFont(QFont('Ariel', 14))
+        label2.setAlignment(Qt.AlignCenter)
+
+        label3 = QLabel('Gear 3')
+        label3.setFont(QFont('Ariel', 14))
+        label3.setAlignment(Qt.AlignCenter)
+
+        gearHeadings.addWidget(label1)
+        gearHeadings.addWidget(label2)
+        gearHeadings.addWidget(label3)
+
+        gearLayout = QHBoxLayout()
+
+        initalGearPos = 50
+        display1 = QLCDNumber(self)
+        display1.setDigitCount(2)
+        display1.display(initalGearPos)
+        slider1 = QSlider(Qt.Vertical, self)
+        slider1.setMinimum(0)
+        slider1.setMaximum(94)
+        slider1.setValue(initalGearPos)
+        slider1.valueChanged.connect(display1.display)
+
+        display2 = QLCDNumber(self)
+        display2.setDigitCount(2)
+        display2.display(initalGearPos)
+        slider2 = QSlider(Qt.Vertical, self)
+        slider2.setMinimum(0)
+        slider2.setMaximum(94)
+        slider2.setValue(initalGearPos)
+        slider2.valueChanged.connect(display2.display)
+
+        display3 = QLCDNumber(self)
+        display3.setDigitCount(2)
+        display3.display(initalGearPos)
+        slider3 = QSlider(Qt.Vertical, self)
+        slider3.setMinimum(0)
+        slider3.setMaximum(94)
+        slider3.setValue(initalGearPos)
+        slider3.valueChanged.connect(display3.display)
+        
+        gearLayout.addWidget(display1)
+        gearLayout.addWidget(slider1)
+        gearLayout.addWidget(display2)
+        gearLayout.addWidget(slider2)
+        gearLayout.addWidget(display3)
+        gearLayout.addWidget(slider3)
+
+        outputLayout = QHBoxLayout()
+        outputLabel = QLabel('Encrypted Message:  ____________')
+        outputLabel.setFont(QFont('Ariel', 14))
+        outputLabel.setAlignment(Qt.AlignCenter)
+
+        outputLayout.addWidget(outputLabel)
+
+
+        outerLayout.addLayout(topLayout)
+        outerLayout.addLayout(gearHeadings)
+        outerLayout.addLayout(gearLayout)
+        outerLayout.addLayout(outputLayout)
+        self.setLayout(outerLayout)
+        self.show()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+
 if __name__ == '__main__':
-    inputMessage, gear1pos, gear2pos, gear3pos = getInputs()
+    app = QApplication(sys.argv)
+    w = GUI()
+    sys.exit(app.exec_())
 
-    gear1 = turnGear(gear1,gear1pos)
-    gear2 = turnGear(gear2,gear2pos)
-    gear3 = turnGear(gear3,gear3pos)
+    # inputMessage, gear1pos, gear2pos, gear3pos = getInputs()
 
-    outputMessage = encrypt(inputMessage, inputGear, gear1, gear2, gear3, reflector)
-    print('Encrypted message:  '+outputMessage)
+    # gear1 = turnGear(gear1,gear1pos)
+    # gear2 = turnGear(gear2,gear2pos)
+    # gear3 = turnGear(gear3,gear3pos)
+
+    # outputMessage = encrypt(inputMessage, inputGear, gear1, gear2, gear3, reflector)
+    # print('Encrypted message:  '+outputMessage)
